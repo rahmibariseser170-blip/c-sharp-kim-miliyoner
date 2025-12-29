@@ -1,0 +1,189 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+
+namespace KimMilyonerOlmakIster
+{
+    class Soru
+    {
+        public string SoruMetni { get; set; }
+        public string[] Secenekler { get; set; }
+        public string DogruCevap { get; set; }
+        public int OdulDegeri { get; set; }
+
+        public Soru(string metin, string[] secenekler, string dogruCevap, int odul)
+        {
+            SoruMetni = metin;
+            Secenekler = secenekler;
+            DogruCevap = dogruCevap;
+            OdulDegeri = odul;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.Title = "Kim Milyoner Olmak İster?";
+            int kazanilanPara = 0;
+            int barajParasi = 0;
+            bool yariYariyaKullanildi = false;
+            bool seyirciKullanildi = false;
+            Random random = new Random();
+
+            List<Soru> sorular = new List<Soru>
+            {
+                new Soru("Türkiye'nin başkenti neresidir?", new string[] {"A) İstanbul", "B) Ankara", "C) İzmir", "D) Bursa"}, "B", 1000),
+                new Soru("Hangi gezegen 'Kızıl Gezegen' olarak bilinir?", new string[] {"A) Mars", "B) Venüs", "C) Jüpiter", "D) Satürn"}, "A", 3000),
+                new Soru("Su kaç derecede kaynar (deniz seviyesinde)?", new string[] {"A) 90", "B) 100", "C) 110", "D) 120"}, "B", 5000),
+                new Soru("Fatih Sultan Mehmet İstanbul'u kaç yılında fethetmiştir?", new string[] {"A) 1453", "B) 1071", "C) 1923", "D) 1299"}, "A", 15000),
+                new Soru("Periyodik tabloda 'O' simgesi hangi elementi temsil eder?", new string[] {"A) Oganesson", "B) Osmiyum", "C) Oksijen", "D) Altın"}, "C", 60000),
+                new Soru("Mona Lisa tablosunun ressamı kimdir?", new string[] {"A) Van Gogh", "B) Picasso", "C) Michelangelo", "D) Leonardo da Vinci"}, "D", 125000),
+                new Soru("Bir milyon kaç tane sıfırdan oluşur?", new string[] {"A) 5", "B) 6", "C) 7", "D) 9"}, "B", 1000000)
+            };
+
+            Console.WriteLine("*************************************************");
+            Console.WriteLine("* KİM MİLYONER OLMAK İSTER'E HOŞ GELDİNİZ  *");
+            Console.WriteLine("*************************************************");
+            Console.WriteLine("Oyuna başlamak için bir tuşa basın...");
+            Console.ReadKey();
+
+            foreach (var soru in sorular)
+            {
+                List<int> elenenSiklarIndex = new List<int>();
+                bool cevapVerildi = false;
+
+                while (!cevapVerildi)
+                {
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Şu anki Ödül: {soru.OdulDegeri} TL");
+                    Console.WriteLine($"Kazanılan Toplam Para: {kazanilanPara} TL");
+                    Console.WriteLine("-------------------------------------------------");
+                    
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("SORU: " + soru.SoruMetni);
+                    Console.WriteLine();
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if (elenenSiklarIndex.Contains(i))
+                        {
+                            Console.WriteLine("");
+                        }
+                        else
+                        {
+                            Console.WriteLine(soru.Secenekler[i]);
+                        }
+                    }
+
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Jokerler: [1] Yarı Yarıya  [2] Seyirciye Sor");
+                    Console.WriteLine("Cevabınız (A/B/C/D) veya Çekilmek için (Q): ");
+                    Console.ResetColor();
+
+                    string giris = Console.ReadLine().ToUpper();
+
+                    if (giris == "1")
+                    {
+                        if (!yariYariyaKullanildi)
+                        {
+                            yariYariyaKullanildi = true;
+                            int dogruIndex = GetIndex(soru.DogruCevap);
+                            List<int> yanlisIndexler = new List<int>();
+
+                            for (int i = 0; i < 4; i++)
+                            {
+                                if (i != dogruIndex) yanlisIndexler.Add(i);
+                            }
+
+                            int kalacakYanlisIndex = yanlisIndexler[random.Next(yanlisIndexler.Count)];
+                            
+                            foreach (int yanlis in yanlisIndexler)
+                            {
+                                if (yanlis != kalacakYanlisIndex)
+                                {
+                                    elenenSiklarIndex.Add(yanlis);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Bu jokeri zaten kullandınız! (Devam etmek için Enter)");
+                            Console.ReadLine();
+                        }
+                    }
+                    else if (giris == "2")
+                    {
+                        if (!seyirciKullanildi)
+                        {
+                            seyirciKullanildi = true;
+                            Console.WriteLine("\nSeyircilerin %80'i şu cevabı veriyor: " + soru.DogruCevap);
+                            Console.WriteLine("(Devam etmek için Enter)");
+                            Console.ReadLine();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Bu jokeri zaten kullandınız! (Devam etmek için Enter)");
+                            Console.ReadLine();
+                        }
+                    }
+                    else if (giris == "Q")
+                    {
+                        Console.WriteLine($"Yarışmadan çekildiniz. Kazandığınız Tutar: {kazanilanPara} TL");
+                        return;
+                    }
+                    else if (giris == "A" || giris == "B" || giris == "C" || giris == "D")
+                    {
+                        if (giris == soru.DogruCevap)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("\nTEBRİKLER! DOĞRU CEVAP!");
+                            kazanilanPara = soru.OdulDegeri;
+                            
+                            if (soru.OdulDegeri == 3000) barajParasi = 3000;
+                            if (soru.OdulDegeri == 15000) barajParasi = 15000;
+
+                            Console.WriteLine($"Toplam paranız: {kazanilanPara} TL oldu.");
+                            Console.ResetColor();
+                            Console.WriteLine("Devam etmek için bir tuşa basın...");
+                            Console.ReadKey();
+                            cevapVerildi = true;
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine($"\nMAALESEF YANLIŞ CEVAP! Doğru cevap: {soru.DogruCevap}");
+                            Console.WriteLine($"Kazandığınız Baraj Ödülü: {barajParasi} TL");
+                            Console.ResetColor();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Geçersiz giriş!");
+                        Thread.Sleep(1000);
+                    }
+                }
+            }
+
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("*************************************************");
+            Console.WriteLine($"      TEBRİKLER! BÜYÜK ÖDÜLÜ KAZANDINIZ!");
+            Console.WriteLine($"           KAZANILAN TUTAR: {kazanilanPara} TL");
+            Console.WriteLine("*************************************************");
+            Console.ReadLine();
+        }
+
+        static int GetIndex(string cevap)
+        {
+            if (cevap == "A") return 0;
+            if (cevap == "B") return 1;
+            if (cevap == "C") return 2;
+            return 3;
+        }
+    }
+}
